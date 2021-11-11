@@ -25,6 +25,17 @@ If you use RAT-SQL in your work, please cite it as follows:
 
 ## Usage
 
+### Step 0: Install Python packages (Windows)
+
+- Make sure to use python version 3.7 (Sqlite3 depends on backup:'sqlite3.Connection.backup')
+<!-- - conda install pytorch==1.8.1 torchvision torchtext torchaudio cudatoolkit=11.1 -c pytorch -c conda-forge -->
+- conda install pytorch==1.5.1 torchvision torchtext cudatoolkit=10.1 -c pytorch
+- pip install -r requirements.txt
+- pip install sklearn ent entmax jupyter
+- python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+- python -c "from transformers import BertModel; BertModel.from_pretrained('bert-large-uncased-whole-word-masking')"
+- install Sqlite and java (SDK 8+) on your computer.
+
 ### Step 1: Download third-party datasets & dependencies
 
 Download the datasets: [Spider](https://yale-lily.github.io/spider) and [WikiSQL](https://github.com/salesforce/WikiSQL). In case of Spider, make sure to download the `08/03/2020` version or newer.
@@ -57,6 +68,8 @@ To work with the WikiSQL dataset, clone its evaluation scripts into this project
 mkdir -p third_party
 git clone https://github.com/salesforce/WikiSQL third_party/wikisql
 ```
+
+Change imports that don't work from wikisql by adapting it to **third_party.wikisql.***.
 
 ### Step 2: Build and run the Docker image
 

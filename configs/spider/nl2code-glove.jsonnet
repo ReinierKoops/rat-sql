@@ -1,5 +1,5 @@
 local _base = import 'nl2code-base.libsonnet';
-local _data_path = 'data/spider/';
+local _data_path = 'C:/Users/Shadow/Documents/GitHub/rat-sql/data/spider/';
 
 function(args, data_path=_data_path) _base(output_from=true, data_path=data_path) + {
     local lr = 0.000743552663260837,
