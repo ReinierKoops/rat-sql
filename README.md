@@ -25,18 +25,18 @@ If you use RAT-SQL in your work, please cite it as follows:
 
 ## Usage
 
-### Step 0: Install Python packages (Windows)
+### Step 1: Install Python packages (Windows)
 
 - Make sure to use python version 3.7 (Sqlite3 depends on backup:'sqlite3.Connection.backup')
 <!-- - conda install pytorch==1.8.1 torchvision torchtext torchaudio cudatoolkit=11.1 -c pytorch -c conda-forge -->
 - conda install pytorch==1.5.1 torchvision torchtext cudatoolkit=10.1 -c pytorch
 - pip install -r requirements.txt
-- pip install sklearn ent entmax jupyter
+- pip install sklearn ent entmax jupyter stanza
 - python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
 - python -c "from transformers import BertModel; BertModel.from_pretrained('bert-large-uncased-whole-word-masking')"
 - install Sqlite and java (SDK 8+) on your computer.
 
-### Step 1: Download third-party datasets & dependencies
+### Step 2: Download third-party datasets & dependencies
 
 Download the datasets: [Spider](https://yale-lily.github.io/spider) and [WikiSQL](https://github.com/salesforce/WikiSQL). In case of Spider, make sure to download the `08/03/2020` version or newer.
 Unpack the datasets somewhere outside this project to create the following directory structure:
@@ -71,22 +71,6 @@ git clone https://github.com/salesforce/WikiSQL third_party/wikisql
 
 Change imports that don't work from wikisql by adapting it to **third_party.wikisql.***.
 
-### Step 2: Build and run the Docker image
-
-We have provided a `Dockerfile` that sets up the entire environment for you.
-It assumes that you mount the datasets downloaded in Step 1 as a volume `/mnt/data` into a running image.
-Thus, the environment setup for RAT-SQL is:
-``` bash
-docker build -t ratsql .
-docker run --rm -m4g -v /path/to/data:/mnt/data -it ratsql
-```
-Note that the image requires at least 4 GB of RAM to run preprocessing.
-By default, [Docker Desktop for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac/) and [Docker Desktop for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows) run containers with 2 GB of RAM.
-The `-m4g` switch overrides it; alternatively, you can increase the default limit in the Docker Desktop settings.
-
-> If you prefer to set up and run the codebase without Docker, follow the steps in `Dockerfile` one by one.
-> Note that this repository requires Python 3.7 or higher and a JVM to run [Stanford CoreNLP](https://stanfordnlp.github.io/CoreNLP/).
-
 ### Step 3: Run the experiments
 
 Every experiment has its own config file in `experiments`.
@@ -98,11 +82,16 @@ python run.py train experiment_config_file       # Step 3b: train a model
 python run.py eval experiment_config_file        # Step 3b: evaluate the results
 ```
 
+``` bash
+python run.py preprocess `experiments/spider-glove-run.jsonnet`  # Ran: 2 hours
+python run.py train `experiments/spider-glove-run.jsonnet`       # Ran: 
+python run.py eval `experiments/spider-glove-run.jsonnet`        # Ran: 
+```
+
 Use the following experiment config files to reproduce our results:
 
 * Spider, GloVE version: `experiments/spider-glove-run.jsonnet`
 * Spider, BERT version (requires a GPU with at least 16GB memory): `experiments/spider-bert-run.jsonnet`
-* WikiSQL, GloVE version: `experiments/wikisql-glove-run.jsonnet`
 
 The exact model accuracy may vary by ±2% depending on a random seed. See [paper](https://arxiv.org/abs/1911.04942) for details.
 
