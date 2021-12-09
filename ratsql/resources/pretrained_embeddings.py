@@ -4,7 +4,6 @@ import os
 import time
 
 import bpemb
-# import corenlp
 import torch
 import torchtext
 
@@ -58,18 +57,18 @@ class GloVe(Embedder):
     def tokenize(self, text):
         annotation = corenlp.annotate(text, self.corenlp_annotators)
         if self.lemmatize:
-            return [word.lemma.lower() for sentence in annotation.sentences for word in sentence.words]
+            return [token.to_dict()[0]["lemma"].lower() for sentence in annotation.sentences for token in sentence.tokens]
         else:
-            return [word.text.lower() for sentence in annotation.sentences for word in sentence.words]
+            return [token.to_dict()[0]["text"].lower() for sentence in annotation.sentences for token in sentence.tokens]
 
     @functools.lru_cache(maxsize=1024)
     def tokenize_for_copying(self, text):
         annotation = corenlp.annotate(text, self.corenlp_annotators)
-        text_for_copying = [word.text.lower() for sentence in annotation.sentences for word in sentence.words]
+        text_for_copying = [token.to_dict()[0]["text"].lower() for sentence in annotation.sentences for token in sentence.tokens]
         if self.lemmatize:
-            text = [word.lemma.lower() for sentence in annotation.sentences for word in sentence.words]
+            text = [token.to_dict()[0]["lemma"].lower() for sentence in annotation.sentences for token in sentence.tokens]
         else:
-            text = [word.text.lower() for sentence in annotation.sentences for word in sentence.words]
+            text = [token.to_dict()[0]["text"].lower() for sentence in annotation.sentences for token in sentence.tokens]
         return text, text_for_copying
 
     def untokenize(self, tokens):
