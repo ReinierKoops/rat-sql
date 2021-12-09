@@ -25,7 +25,6 @@ class Preprocessor:
             config['model'])
 
     def preprocess(self):
-        print(self.config)
         self.model_preproc.clear_items()
         for section in self.config['data']:
             data = registry.construct('dataset', self.config['data'][section])
