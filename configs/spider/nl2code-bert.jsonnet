@@ -73,7 +73,7 @@ function(args) _base(output_from=_output_from, data_path=args.data_path) + {
             desc_attn: 'mha',
             enc_recurrent_size: enc_size,
             recurrent_size : args.decoder_hidden_size,
-            loss_type: 'label_smooth',
+            loss_type: 'softmax',
             use_align_mat: args.use_align_mat,
             use_align_loss: args.use_align_loss,
         }
