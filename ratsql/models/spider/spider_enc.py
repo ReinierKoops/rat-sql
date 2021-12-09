@@ -601,6 +601,9 @@ class Bertokens:
         normalized_toks = []
         for i, tok in enumerate(new_toks):
             ann = corenlp.annotate(tok, annotators=['tokenize', 'lemma'])
+            
+            print(i, tok, ann)
+
             lemmas = [tok.lemma.lower() for sent in ann.sentence for tok in sent.token]
             lemma_word = " ".join(lemmas)
             normalized_toks.append(lemma_word)
