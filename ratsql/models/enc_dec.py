@@ -65,7 +65,6 @@ class EncDecModel(torch.nn.Module):
                 'encoder', encoder, device=device, preproc=preproc.enc_preproc)
         self.decoder = registry.construct(
                 'decoder', decoder, device=device, preproc=preproc.dec_preproc)
-        self.alignment = None
         
         if getattr(self.encoder, 'batched'):
             self.compute_loss = self._compute_loss_enc_batched
@@ -118,6 +117,4 @@ class EncDecModel(torch.nn.Module):
             enc_state, = self.encoder([enc_input])
         else:
             enc_state = self.encoder(enc_input)
-        # Set alignment equal to latest question output
-        self.alignment = enc_state
         return self.decoder.begin_inference(enc_state, orig_item)
