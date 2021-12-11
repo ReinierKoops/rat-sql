@@ -119,10 +119,6 @@ class Saver(object):
         """
         items2restore = {k: self._items[k] for k in item_keys}
 
-        # Output the found models that could be restored.
-        print(model_dir)
-        print(items2restore)
-
         last_step = load_checkpoint(
             items2restore, model_dir, map_location, step)
         return last_step
