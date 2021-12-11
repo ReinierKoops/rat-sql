@@ -118,7 +118,6 @@ class Saver(object):
            Last training step for the model restored.
         """
         items2restore = {k: self._items[k] for k in item_keys}
-
         last_step = load_checkpoint(
             items2restore, model_dir, map_location, step)
         return last_step
