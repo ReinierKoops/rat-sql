@@ -136,6 +136,10 @@ class Trainer:
         # 2. Restore model parameters
         saver = saver_mod.Saver(
             {"model": self.model, "optimizer": optimizer}, keep_every_n=self.train_config.keep_every_n)
+
+        print("The modeldir is", modeldir)
+        print("The map location is", self.device)
+
         last_step = saver.restore(modeldir, map_location=self.device)
 
         #lr fix to not break scheduler when loading from checkpoint
