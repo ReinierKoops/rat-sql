@@ -4,16 +4,19 @@ import torch.utils.data
 from ratsql.models import abstract_preproc
 from ratsql.utils import registry
 
+import pandas as pd
+
+
 class ZippedDataset(torch.utils.data.Dataset):
     def __init__(self, *components):
         assert len(components) >= 1
         lengths = [len(c) for c in components]
         assert all(lengths[0] == other for other in lengths[1:]), f"Lengths don't match: {lengths}"
         self.components = components
-    
+
     def __getitem__(self, idx):
         return tuple(c[idx] for c in self.components)
-    
+
     def __len__(self):
         return len(self.components[0])
 
@@ -31,18 +34,18 @@ class EncDecModel(torch.nn.Module):
 
             self.enc_preproc = registry.lookup('encoder', encoder['name']).Preproc(**encoder_preproc)
             self.dec_preproc = registry.lookup('decoder', decoder['name']).Preproc(**decoder_preproc)
-        
+
         def validate_item(self, item, section):
             enc_result, enc_info = self.enc_preproc.validate_item(item, section)
             dec_result, dec_info = self.dec_preproc.validate_item(item, section)
-            
+
             return enc_result and dec_result, (enc_info, dec_info)
-        
+
         def add_item(self, item, section, validation_info):
             enc_info, dec_info = validation_info
             self.enc_preproc.add_item(item, section, enc_info)
             self.dec_preproc.add_item(item, section, dec_info)
-        
+
         def clear_items(self):
             self.enc_preproc.clear_items()
             self.dec_preproc.clear_items()
@@ -50,14 +53,14 @@ class EncDecModel(torch.nn.Module):
         def save(self):
             self.enc_preproc.save()
             self.dec_preproc.save()
-        
+
         def load(self):
             self.enc_preproc.load()
             self.dec_preproc.load()
-        
+
         def dataset(self, section):
             return ZippedDataset(self.enc_preproc.dataset(section), self.dec_preproc.dataset(section))
-        
+
     def __init__(self, preproc, device, encoder, decoder):
         super().__init__()
         self.preproc = preproc
@@ -65,7 +68,7 @@ class EncDecModel(torch.nn.Module):
                 'encoder', encoder, device=device, preproc=preproc.enc_preproc)
         self.decoder = registry.construct(
                 'decoder', decoder, device=device, preproc=preproc.dec_preproc)
-        
+
         if getattr(self.encoder, 'batched'):
             self.compute_loss = self._compute_loss_enc_batched
         else:
@@ -117,4 +120,24 @@ class EncDecModel(torch.nn.Module):
             enc_state, = self.encoder([enc_input])
         else:
             enc_state = self.encoder(enc_input)
-        return self.decoder.begin_inference(enc_state, orig_item)
+
+        # Get df's
+        df = pd.DataFrame(enc_state.m2c_align_mat.cpu().numpy())
+        df2 = pd.DataFrame(enc_state.m2t_align_mat.cpu().numpy())
+        # Columns and rows df's
+        columns = [("column:" + column[1]) for column in orig_item.orig_schema["column_names"]]
+        tables = [("table:" + table) for table in orig_item.orig_schema["table_names"]]
+        question = enc_input["question"]
+        # Resize df's
+        df = df.loc[:len(question) - 1, :]
+        df2 = df2.loc[:len(question) - 1, :]
+        # Set axis names df's
+        df.set_axis(question, axis='index', inplace=True)
+        df.set_axis(columns, axis='columns', inplace=True)
+        df2.set_axis(question, axis='index', inplace=True)
+        df2.set_axis(tables, axis='columns', inplace=True)
+        # Merge df's
+        attention_map = pd.concat([df, df2], axis=1)
+
+        inference = self.decoder.begin_inference(enc_state, orig_item)
+        return inference, attention_map

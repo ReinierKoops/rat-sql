@@ -19,7 +19,8 @@ def beam_search_with_heuristics(model, orig_item, preproc_item, beam_size, max_s
     """
     Find the valid FROM clasue with beam search
     """
-    inference_state, next_choices = model.begin_inference(orig_item, preproc_item)
+    inference, attention_map = model.begin_inference(orig_item, preproc_item)
+    inference_state, next_choices = inference[0], inference[1]
     beam = [Hypothesis4Filtering(inference_state, next_choices)]
 
     cached_finished_seqs = []  # cache filtered trajectories
@@ -188,9 +189,9 @@ def beam_search_with_heuristics(model, orig_item, preproc_item, beam_size, max_s
                 hyp.column_history = []
                 hyp.key_column_history = []
         elif cached_finished_seqs:
-            return cached_finished_seqs[:beam_size]
+            return cached_finished_seqs[:beam_size], attention_map
         else:
-            return unfiltered_finished[:beam_size]
+            return unfiltered_finished[:beam_size], attention_map
 
 
 # merge sorted beam
@@ -215,7 +216,8 @@ def merge_beams(beam_1, beam_2, beam_size):
 
 
 def beam_search_with_oracle_column(model, orig_item, preproc_item, beam_size, max_steps):
-    inference_state, next_choices = model.begin_inference(orig_item, preproc_item)
+    inference, attention_map = model.begin_inference(orig_item, preproc_item)
+    inference_state, next_choices = inference[0], inference[1]
     beam = [Hypothesis(inference_state, next_choices)]
     finished = []
     assert beam_size == 1
@@ -307,7 +309,8 @@ def beam_search_with_oracle_column(model, orig_item, preproc_item, beam_size, ma
 
 
 def beam_search_with_oracle_sketch(model, orig_item, preproc_item, beam_size, max_steps):
-    inference_state, next_choices = model.begin_inference(orig_item, preproc_item)
+    inference, attention_map = model.begin_inference(orig_item, preproc_item)
+    inference_state, next_choices = inference[0], inference[1]
     hyp = Hypothesis(inference_state, next_choices)
 
     parsed = model.decoder.preproc.grammar.parse(orig_item.code, "val")

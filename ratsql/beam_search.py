@@ -15,7 +15,8 @@ class Hypothesis:
 
 
 def beam_search(model, orig_item, preproc_item, beam_size, max_steps):
-    inference_state, next_choices = model.begin_inference(orig_item, preproc_item)
+    inference, attention_map = model.begin_inference(orig_item, preproc_item)
+    inference_state, next_choices = inference[0], inference[1]
     beam = [Hypothesis(inference_state, next_choices)]
     finished = []
 
