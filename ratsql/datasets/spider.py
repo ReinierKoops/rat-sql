@@ -117,8 +117,10 @@ def load_tables(paths):
 
             db_id = schema_dict['db_id']
             assert db_id not in schemas
-            schemas[db_id] = Schema(db_id, tables, columns, foreign_key_graph, schema_dict)
-            eval_foreign_key_maps[db_id] = evaluation.build_foreign_key_map(schema_dict)
+            schemas[db_id] = Schema(
+                db_id, tables, columns, foreign_key_graph, schema_dict)
+            eval_foreign_key_maps[db_id] = evaluation.build_foreign_key_map(
+                schema_dict)
 
     return schemas, eval_foreign_key_maps
 
@@ -142,32 +144,31 @@ class SpiderDataset(torch.utils.data.Dataset):
                     orig=entry,
                     orig_schema=self.schemas[entry['db_id']].orig)
                 self.examples.append(item)
-        
+
         if demo_path:
             self.demos: Dict[str, List] = json.load(open(demo_path))
-            
+
         # Backup in-memory copies of all the DBs and create the live connections
         for db_id, schema in tqdm(self.schemas.items(), desc="DB connections"):
             sqlite_path = Path(db_path) / db_id / f"{db_id}.sqlite"
             source: sqlite3.Connection
-            with sqlite3.connect(str(sqlite_path)) as source:
-                dest = sqlite3.connect(':memory:')
+            with sqlite3.connect(str(sqlite_path), check_same_thread=False) as source:
+                dest = sqlite3.connect(':memory:', check_same_thread=False)
                 dest.row_factory = sqlite3.Row
                 source.backup(dest)
             schema.connection = dest
-            
 
     def __len__(self):
         return len(self.examples)
 
     def __getitem__(self, idx):
         return self.examples[idx]
-    
+
     def __del__(self):
         for _, schema in self.schemas.items():
             if schema.connection:
                 schema.connection.close()
-    
+
     class Metrics:
         def __init__(self, dataset):
             self.dataset = dataset

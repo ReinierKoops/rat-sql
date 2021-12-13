@@ -92,9 +92,12 @@ class Inferer:
             output.flush()
 
     def _infer_one(self, model, data_item, preproc_item, beam_size, output_history=False, use_heuristic=True):
+        # Conditionally return an attention_map
+        attention_map = None
+
         if use_heuristic:
             # TODO: from_cond should be true from non-bert model
-            beams = spider_beam_search.beam_search_with_heuristics(
+            beams, attention_map = spider_beam_search.beam_search_with_heuristics(
                 model, data_item, preproc_item, beam_size=beam_size, max_steps=1000, from_cond=False)
         else:
             beams = beam_search.beam_search(
@@ -112,7 +115,11 @@ class Inferer:
                        'choice_history': beam.choice_history,
                        'score_history': beam.score_history,
                    } if output_history else {})})
-        return decoded
+
+        if attention_map is not None:
+            return decoded, attention_map
+        else:
+            return decoded
 
     def _debug(self, model, sliced_data, output):
         for i, item in enumerate(tqdm.tqdm(sliced_data)):
