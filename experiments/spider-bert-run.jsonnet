@@ -1,8 +1,8 @@
 {
-    logdir: "logdir/bert_run",
-    model_config: "configs/spider/nl2code-bert.jsonnet",
+    logdir: "C:/Users/Shadow/Documents/GitHub/rat-sql/logdir/bert_run",
+    model_config: "C:/Users/Shadow/Documents/GitHub/rat-sql/configs/spider/nl2code-bert.jsonnet",
     model_config_args: {
-        data_path: 'data/spider/',
+        data_path: 'C:/Users/Shadow/Documents/GitHub/rat-sql/data/spider/',
         bs: 2,
         num_batch_accumulated: 12,
         bert_version: "bert-large-uncased-whole-word-masking",
@@ -25,7 +25,7 @@
     },
 
     eval_name: "bert_run_%s_%d" % [self.eval_use_heuristic, self.eval_beam_size],
-    eval_output: "logdir/ie_dirs",
+    eval_output: "C:/Users/Shadow/Documents/GitHub/rat-sql/logdir/ie_dirs",
     eval_beam_size: 1,
     eval_use_heuristic: true,
     eval_steps: [ 1000 * x + 100 for x in std.range(30, 39)] + [40000],

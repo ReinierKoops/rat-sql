@@ -9,9 +9,9 @@ from ratsql.utils import registry
 
 BertModel.from_pretrained('bert-large-uncased-whole-word-masking')
 
-root_dir = 'rat-sql/'
-exp_config_path = 'rat-sql/experiments/spider-bert-run.jsonnet'
-model_dir = 'rat-sql/logdir/bert_run/bs=2,lr=7.4e-04,bert_lr=1.0e-05,end_lr=0e0,att=1/'
+root_dir = 'C:/Users/Shadow/Documents/GitHub/rat-sql/'
+exp_config_path = root_dir + 'experiments/spider-bert-run.jsonnet'
+model_dir = root_dir + 'logdir/bert_run/bs=2,lr=7.4e-04,bert_lr=1.0e-05,end_lr=0e0,att=1/'
 checkpoint_step = 19400  # whatever checkpoint you want to use
 
 exp_config = json.loads(_jsonnet.evaluate_file(exp_config_path))  # data_path: '<path to spider/>',
@@ -44,8 +44,5 @@ def question(q, db_id):
     with torch.no_grad():
         return inferer._infer_one(model, data_item, preproc_data, beam_size=1, use_heuristic=True)
 
+decoded, attention_map = question("Which employees are under age of 30 and which city do they work for?", "employee_hire_evaluation")
 
-# question("All cars?", "car_1")
-# question("All car countries?", "car_1")
-print(question("For the cars with 4 cylinders, which model has the largest horsepower?", "car_1"))
-print(question("Find the maximum weight for each type of pet", "pets_1"))
