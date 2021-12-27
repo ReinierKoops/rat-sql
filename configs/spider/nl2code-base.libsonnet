@@ -72,7 +72,7 @@ function(output_from, data_path='data/spider/') {
                 name: 'spider',
                 output_from: output_from,
                 use_table_pointer: output_from,
-                include_literals: false,
+                include_literals: true,
             },
             use_seq_elem_rules: true,
 
@@ -84,12 +84,12 @@ function(output_from, data_path='data/spider/') {
 
     train: {
         batch_size: 10,
-        eval_batch_size: 50,
+        eval_batch_size: 100,
 
         keep_every_n: 1000,
         eval_every_n: 100,
         save_every_n: 100,
-        report_every_n: 50,
+        report_every_n: 100,
 
         max_steps: 40000,
         num_eval_items: 50,
