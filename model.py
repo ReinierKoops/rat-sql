@@ -51,8 +51,11 @@ class Model:
             return self.inferer._infer_one(self.model, data_item, preproc_data, beam_size=1, use_heuristic=True)
 
 
-model = Model()
+class ModelSingleton(object):
+    _instance = None
 
-
-def get_model():
-    return model
+    def __new__(Model):
+        if Model._instance is None:
+            print('Creating the object')
+            Model._instance = super(ModelSingleton, Model).__new__(Model)
+        return Model._instance
